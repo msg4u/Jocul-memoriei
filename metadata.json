@@ -1,0 +1,6 @@
+{
+  "name": "Jocul Memoriei: Casele Animalelor",
+  "description": "Aplicație educativă pentru copii de 4-7 ani inspirată din povestea Marele Bâlci al Caselor Pierdute, unde o ajuți pe Ana să potrivească animalele cu căsuțele lor adevărate.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
