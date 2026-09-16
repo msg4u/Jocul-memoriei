@@ -121,6 +121,23 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right side: Audio controls & Score stars */}
         <div className="hidden sm:flex items-center gap-2">
+          {/* Voice reader toggle */}
+          <button
+            id="toggle-voice-btn"
+            onClick={onToggleVoice}
+            className={`px-2.5 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1.5 transition-all ${
+              voiceEnabled
+                ? 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100 shadow-xs'
+                : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200'
+            }`}
+            title={voiceEnabled ? 'Lectură în limba română (adaptată copiilor 4-7 ani)' : 'Lectură oprită'}
+          >
+            <span className="text-sm">🎙️</span>
+            <span className="hidden md:inline font-bold">
+              {voiceEnabled ? 'Voce Română' : 'Mut'}
+            </span>
+          </button>
+
           {/* Audio effect toggle */}
           <button
             id="toggle-sound-btn"
@@ -130,7 +147,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                 : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200'
             }`}
-            title={soundEnabled ? 'Sunet activ' : 'Sunet oprit'}
+            title={soundEnabled ? 'Efecte sonore active' : 'Efecte sonore oprite'}
           >
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>

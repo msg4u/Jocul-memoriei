@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnimalPair } from '../types';
 import { Volume2, VolumeX, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
 import { soundManager } from '../utils/soundEffects';
@@ -14,8 +14,17 @@ export const MatchCelebrationModal: React.FC<MatchCelebrationModalProps> = ({
   onClose,
   isTriple,
 }) => {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
   useEffect(() => {
-    // Read Ana's explanation out loud automatically if voice is on
+    const unsub = soundManager.onSpeakingChange((speaking) => {
+      setIsSpeaking(speaking);
+    });
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    // Read Ana's explanation out loud automatically with warm Kore voice
     const speechText = `Felicitări! Ai salvat ${pair.name}! ${pair.adaptationWhy}`;
     soundManager.speak(speechText);
 
@@ -33,8 +42,12 @@ export const MatchCelebrationModal: React.FC<MatchCelebrationModalProps> = ({
   }, [pair, onClose]);
 
   const handleSpeak = () => {
-    const fullText = `Bravo! ${pair.name} s-a întors acasă, în ${pair.habitatName}! ${pair.adaptationWhy}`;
-    soundManager.speak(fullText);
+    if (isSpeaking) {
+      soundManager.stopSpeaking();
+    } else {
+      const fullText = `Bravo! ${pair.name} s-a întors acasă, în ${pair.habitatName}! ${pair.adaptationWhy}`;
+      soundManager.speak(fullText);
+    }
   };
 
   return (
@@ -142,11 +155,17 @@ export const MatchCelebrationModal: React.FC<MatchCelebrationModalProps> = ({
           <button
             id="speak-explanation-btn"
             onClick={handleSpeak}
-            className="px-4 py-3 bg-sky-100 hover:bg-sky-200 text-sky-800 font-bold rounded-2xl flex items-center gap-2 transition-colors border border-sky-200 text-sm active:scale-95"
-            title="Ascultă explicația Anei"
+            className={`px-4 py-3 rounded-2xl flex items-center gap-2 transition-all border text-sm active:scale-95 shadow-xs ${
+              isSpeaking
+                ? 'bg-rose-500 text-white border-rose-600 animate-pulse'
+                : 'bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-200'
+            }`}
+            title="Ascultă explicația în limba română (adaptată pentru copii)"
           >
-            <Volume2 className="w-5 h-5 text-sky-600" />
-            <span className="hidden sm:inline">Ascultă</span>
+            <Volume2 className={`w-5 h-5 ${isSpeaking ? 'animate-bounce' : 'text-rose-600'}`} />
+            <span className="font-extrabold">
+              {isSpeaking ? 'Pauză' : 'Ascultă'}
+            </span>
           </button>
 
           <button

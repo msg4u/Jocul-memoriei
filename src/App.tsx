@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { MemoryGame } from './components/MemoryGame';
 import { StoryViewer } from './components/StoryViewer';
 import { ParentsGuideModal } from './components/ParentsGuideModal';
 import { PrintableCardsModal } from './components/PrintableCardsModal';
 import { soundManager } from './utils/soundEffects';
-import { Sparkles, BookOpen, Lightbulb, Scissors, Heart, Sun, Cloud } from 'lucide-react';
+import { initializeAudioPreloader } from './utils/audioPreloader';
+import { Sparkles, BookOpen, Lightbulb, Scissors, Heart, Sun, Cloud, Volume2 } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'game' | 'story'>('game');
@@ -18,6 +19,11 @@ export default function App() {
   const [savedCount, setSavedCount] = useState<number>(0);
   const [totalCount, setTotalCount] = useState<number>(4);
 
+  // Initialize zero-delay audio preloading in background with Gemini 3.1 Flash TTS Kore voice
+  useEffect(() => {
+    initializeAudioPreloader();
+  }, []);
+
   const handleToggleSound = () => {
     const next = soundManager.toggleSound();
     setSoundEnabled(next);
@@ -26,6 +32,12 @@ export default function App() {
   const handleToggleVoice = () => {
     const next = soundManager.toggleVoice();
     setVoiceEnabled(next);
+  };
+
+  const handleSpeakBanner = () => {
+    soundManager.speak(
+      'Marele Bâlci al Caselor Pierdute! Vântul năzdrăvan a amestecat toate casele! Fii ca Ana și ajută animalele să-și regăsească locurile adevărate!'
+    );
   };
 
   return (
@@ -67,10 +79,15 @@ export default function App() {
               <div className="flex items-center gap-3 text-center sm:text-left">
                 <span className="text-3xl sm:text-4xl animate-wobble">🌪️🐻‍❄️</span>
                 <div>
-                  <h1 className="text-base sm:text-lg font-black leading-tight text-amber-950">
-                    Marele Bâlci al Caselor Pierdute!
-                  </h1>
-                  <p className="text-xs sm:text-sm font-bold text-amber-900 leading-snug">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <h1 className="text-base sm:text-lg font-black leading-tight text-amber-950">
+                      Marele Bâlci al Caselor Pierdute!
+                    </h1>
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white px-2 py-0.5 rounded-full shadow-xs">
+                      🎙️ Voce Română
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm font-bold text-amber-900 leading-snug mt-0.5">
                     Vântul năzdrăvan a amestecat casele! Fii Ana și potrivește fiecare animal cu casa lui adevărată!
                   </p>
                 </div>
@@ -78,12 +95,22 @@ export default function App() {
 
               <div className="flex items-center gap-2">
                 <button
+                  id="speak-banner-intro-btn"
+                  onClick={handleSpeakBanner}
+                  className="px-3.5 py-2 bg-rose-500 hover:bg-rose-600 text-white font-black text-xs rounded-2xl shadow-xs flex items-center gap-1.5 transition-transform active:scale-95 whitespace-nowrap"
+                  title="Ascultă cu voce caldă în limba română (copii 4-7 ani)"
+                >
+                  <Volume2 className="w-4 h-4" />
+                  <span>Ascultă Povestea</span>
+                </button>
+
+                <button
                   id="open-story-from-banner"
                   onClick={() => setActiveTab('story')}
                   className="px-3.5 py-2 bg-white/90 hover:bg-white text-amber-950 font-black text-xs rounded-2xl shadow-xs flex items-center gap-1.5 transition-transform active:scale-95 whitespace-nowrap"
                 >
                   <BookOpen className="w-4 h-4 text-amber-600" />
-                  <span>Vezi Povestea</span>
+                  <span>Vezi Pagini</span>
                 </button>
               </div>
             </div>

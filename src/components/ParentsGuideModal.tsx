@@ -1,12 +1,22 @@
-import React, { useEffect } from 'react';
-import { X, HelpCircle, Lightbulb, Users } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, HelpCircle, Lightbulb, Users, Volume2 } from 'lucide-react';
 import { ANIMALS_DATA } from '../data/animalsData';
+import { soundManager } from '../utils/soundEffects';
 
 interface ParentsGuideModalProps {
   onClose: () => void;
 }
 
 export const ParentsGuideModal: React.FC<ParentsGuideModalProps> = ({ onClose }) => {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  useEffect(() => {
+    const unsub = soundManager.onSpeakingChange((speaking) => {
+      setIsSpeaking(speaking);
+    });
+    return unsub;
+  }, []);
+
   // Listen for Escape key to close modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -15,8 +25,21 @@ export const ParentsGuideModal: React.FC<ParentsGuideModalProps> = ({ onClose })
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      soundManager.stopSpeaking();
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [onClose]);
+
+  const handleSpeakGuide = () => {
+    if (isSpeaking) {
+      soundManager.stopSpeaking();
+    } else {
+      soundManager.speak(
+        'Concept științific: Adaptarea la mediu. Fiecare organism viu are trăsături fizice și comportamentale specifice care îi permit să supraviețuiască în mediul său nativ. Dacă este mutat brusc în alt habitat, nu poate supraviețui fără trăsăturile potrivite.'
+      );
+    }
+  };
 
   return (
     <div
@@ -47,16 +70,34 @@ export const ParentsGuideModal: React.FC<ParentsGuideModalProps> = ({ onClose })
             </div>
           </div>
 
-          {/* Prominent, touch-friendly Close Button */}
-          <button
-            id="close-guide-modal-btn"
-            onClick={onClose}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-600 border-2 border-slate-200 hover:border-rose-300 font-extrabold text-xs sm:text-sm shadow-xs transition-all active:scale-95"
-            title="Închide ghidul (sau tasta Escape)"
-          >
-            <X className="w-4 h-4" />
-            <span>Închide</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              id="guide-listen-btn"
+              onClick={handleSpeakGuide}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl font-extrabold text-xs sm:text-sm shadow-xs transition-all active:scale-95 ${
+                isSpeaking
+                  ? 'bg-rose-500 text-white animate-pulse'
+                  : 'bg-rose-50 hover:bg-rose-100 text-rose-800 border-2 border-rose-200'
+              }`}
+              title="Ascultă introducerea ghidului în limba română"
+            >
+              <Volume2 className="w-4 h-4" />
+              <span className="hidden sm:inline">
+                {isSpeaking ? 'Pauză' : 'Ascultă Ghidul'}
+              </span>
+            </button>
+
+            {/* Prominent, touch-friendly Close Button */}
+            <button
+              id="close-guide-modal-btn"
+              onClick={onClose}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-600 border-2 border-slate-200 hover:border-rose-300 font-extrabold text-xs sm:text-sm shadow-xs transition-all active:scale-95"
+              title="Închide ghidul (sau tasta Escape)"
+            >
+              <X className="w-4 h-4" />
+              <span>Închide</span>
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Content Body */}

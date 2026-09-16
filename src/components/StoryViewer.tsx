@@ -10,11 +10,19 @@ interface StoryViewerProps {
 export const StoryViewer: React.FC<StoryViewerProps> = ({ onStartGame }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const slide = STORY_SLIDES[currentSlide];
 
   useEffect(() => {
-    // Read current slide aloud
+    const unsub = soundManager.onSpeakingChange((speaking) => {
+      setIsSpeaking(speaking);
+    });
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    // Read current slide aloud with warm Kore voice
     const fullText = `${slide.title}. ${slide.subtitle}. ${slide.text}`;
     soundManager.speak(fullText);
 
@@ -40,8 +48,12 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({ onStartGame }) => {
   };
 
   const handleReadCurrent = () => {
-    const fullText = `${slide.title}. ${slide.subtitle}. ${slide.text}`;
-    soundManager.speak(fullText);
+    if (isSpeaking) {
+      soundManager.stopSpeaking();
+    } else {
+      const fullText = `${slide.title}. ${slide.subtitle}. ${slide.text}`;
+      soundManager.speak(fullText);
+    }
   };
 
   return (
@@ -66,11 +78,17 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({ onStartGame }) => {
             <button
               id="story-read-voice-btn"
               onClick={handleReadCurrent}
-              className="p-2.5 bg-white/20 hover:bg-white/30 text-white rounded-2xl flex items-center gap-1.5 text-xs font-bold transition-all"
-              title="Citește-mi cu voce tare"
+              className={`p-2.5 rounded-2xl flex items-center gap-1.5 text-xs font-bold transition-all shadow-xs ${
+                isSpeaking
+                  ? 'bg-rose-600 text-white ring-2 ring-white animate-pulse'
+                  : 'bg-white/20 hover:bg-white/30 text-white'
+              }`}
+              title="Ascultă lectura în limba română (adaptată pentru copii)"
             >
-              <Volume2 className="w-5 h-5" />
-              <span className="hidden sm:inline">Citește-mi</span>
+              <Volume2 className={`w-5 h-5 ${isSpeaking ? 'animate-bounce' : ''}`} />
+              <span className="hidden sm:inline">
+                {isSpeaking ? 'Oprește Lectura' : 'Citește-mi'}
+              </span>
             </button>
           </div>
         </div>
@@ -190,12 +208,31 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({ onStartGame }) => {
 
           {/* Story Text Box */}
           <div className="mt-5 bg-white/95 rounded-2xl p-5 border-2 border-amber-200 shadow-sm">
-            <h3 className="text-xl sm:text-2xl font-black text-slate-800">
-              {slide.title}
-            </h3>
-            <p className="text-sm font-bold text-amber-700 mt-0.5">
-              {slide.subtitle}
-            </p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-800">
+                  {slide.title}
+                </h3>
+                <p className="text-sm font-bold text-amber-700 mt-0.5">
+                  {slide.subtitle}
+                </p>
+              </div>
+              <button
+                id="inline-story-listen-btn"
+                onClick={handleReadCurrent}
+                className={`p-2 sm:px-3 sm:py-2 rounded-xl flex items-center gap-1.5 text-xs font-black transition-all shadow-xs shrink-0 ${
+                  isSpeaking
+                    ? 'bg-rose-500 text-white animate-pulse'
+                    : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
+                }`}
+                title="Ascultă această pagină în limba română"
+              >
+                <Volume2 className="w-4 h-4" />
+                <span className="hidden sm:inline">
+                  {isSpeaking ? 'Pauză' : 'Ascultă'}
+                </span>
+              </button>
+            </div>
             <p className="text-base sm:text-lg text-slate-700 font-medium leading-relaxed mt-3">
               {slide.text}
             </p>

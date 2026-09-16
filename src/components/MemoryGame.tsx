@@ -17,6 +17,7 @@ import {
   Clock,
   CheckCircle2,
   Smile,
+  Volume2,
 } from 'lucide-react';
 
 interface MemoryGameProps {
@@ -240,10 +241,12 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({
       soundManager.playMismatch();
 
       setTimeout(() => {
-        // Flip back
+        // Flip back only cards that were not matched
         setCards(prev =>
           prev.map(c =>
-            nextFlippedIds.includes(c.uniqueId) ? { ...c, isFlipped: false } : c
+            nextFlippedIds.includes(c.uniqueId) && !c.isMatched
+              ? { ...c, isFlipped: false }
+              : c
           )
         );
         setFlippedIds([]);
@@ -494,8 +497,8 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({
         </div>
 
         {/* Prompt reminder message */}
-        <div className="mt-3 py-1.5 px-3 bg-gradient-to-r from-amber-50 via-sky-50 to-amber-50 rounded-xl border border-amber-200/60 text-center">
-          <p className="text-xs text-slate-700 font-bold">
+        <div className="mt-3 py-2 px-3.5 bg-gradient-to-r from-amber-50 via-rose-50 to-amber-50 rounded-2xl border border-amber-200 text-center flex items-center justify-between gap-2 shadow-xs">
+          <p className="text-xs text-slate-700 font-bold flex-1 text-center sm:text-left">
             🌬️ „Vântul a amestecat toate casele animalelor! Tu ești Ana și trebuie să le pui la loc!”
             {difficulty === 'triple' && (
               <span className="text-purple-700 font-extrabold ml-1">
@@ -503,6 +506,19 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({
               </span>
             )}
           </p>
+          <button
+            id="listen-mission-prompt-btn"
+            onClick={() =>
+              soundManager.speak(
+                'Vântul a amestecat toate casele animalelor! Tu ești Ana și trebuie să le pui la loc!'
+              )
+            }
+            className="p-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white flex items-center gap-1 text-[11px] font-black transition-transform active:scale-95 shrink-0 shadow-xs"
+            title="Ascultă misiunea în limba română"
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Ascultă</span>
+          </button>
         </div>
       </div>
 
@@ -574,11 +590,26 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({
             )}
 
             {/* Scientific takeaway recap */}
-            <div className="p-3 my-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-950 font-medium text-left flex items-start gap-2">
-              <span className="text-xl shrink-0">💡</span>
-              <div>
-                <strong>Lecția Anei:</strong> Fiecare animal are corpul construit perfect pentru casa lui — blană pentru ger, cocoașe pentru căldură, branhii pentru ocean!
+            <div className="p-3.5 my-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-950 font-medium text-left flex items-start justify-between gap-3 shadow-xs">
+              <div className="flex items-start gap-2">
+                <span className="text-xl shrink-0">💡</span>
+                <div>
+                  <strong>Lecția Anei:</strong> Fiecare animal are corpul construit perfect pentru casa lui — blană pentru ger, cocoașe pentru căldură, branhii pentru ocean!
+                </div>
               </div>
+              <button
+                id="victory-speak-btn"
+                onClick={() =>
+                  soundManager.speak(
+                    'Felicitări! Toate animalele sunt fericite și s-au întors acasă! Lecția Anei este că fiecare animal are corpul construit perfect pentru casa lui: blană pentru ger, cocoașe pentru căldură, și branhii pentru ocean!'
+                  )
+                }
+                className="p-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl shadow-xs transition-transform active:scale-95 shrink-0 flex items-center gap-1 font-black text-xs"
+                title="Ascultă concluzia în limba română"
+              >
+                <Volume2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Ascultă</span>
+              </button>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2 mt-4">
